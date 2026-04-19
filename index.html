@@ -141,89 +141,63 @@
             document.getElementById('analyzeBtn').disabled = true;
         }
         
-        // Avvia analisi
+        // Avvia analisi - INVIA SUBITO AL BOT
         async function startAnalysis() {
             if (images.length === 0) return;
             
-            // Mostra step 2
+            // Mostra step 2 (invio in corso)
             document.getElementById('step1').style.display = 'none';
             document.getElementById('step2').style.display = 'block';
             document.getElementById('step3').style.display = 'none';
             
             document.getElementById('totalImages').textContent = images.length;
-            
-            // Simula analisi
-            let progress = 0;
-            const totalSteps = images.length * 3;
-            
-            for (let i = 0; i < images.length; i++) {
-                // Fase 1
-                updateProgress(++progress, totalSteps, `Preparazione immagine ${i+1}...`);
-                await delay(500);
-                
-                // Fase 2
-                updateProgress(++progress, totalSteps, `Analisi AI Vision...`);
-                document.getElementById('analysisStatus').innerHTML = `⏳ Analisi immagine ${i+1} di ${images.length}...`;
-                await delay(800);
-                
-                // Fase 3
-                updateProgress(++progress, totalSteps, `Estrazione turni...`);
-                await delay(600);
-            }
-            
-            updateProgress(totalSteps, totalSteps, 'Analisi completata!');
-            await delay(1000);
-            
-            // Mostra risultati
-            showResults();
-        }
-        
-        // Mostra risultati
-        function showResults() {
-            document.getElementById('step2').style.display = 'none';
-            document.getElementById('step3').style.display = 'block';
-            
-            const summary = document.getElementById('summary');
-            summary.innerHTML = `
-                <div style="display: flex; justify-content: space-between; margin: 10px 0; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
-                    <span>📸 Immagini analizzate:</span>
-                    <strong>${images.length}</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin: 10px 0; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
-                    <span>📊 Turni estratti:</span>
-                    <strong>${images.length * 3}</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin: 10px 0; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
-                    <span>👤 Cognome:</span>
-                    <strong>Ruggeri</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin: 10px 0;">
-                    <span>📅 Periodo:</span>
-                    <strong>20-25 Aprile 2026</strong>
-                </div>
-            `;
+            document.getElementById('analysisStatus').innerHTML = `📤 Invio ${images.length} immagine(i) al bot...`;
             
             // Prepara dati per invio
             const imageData = [];
-            images.forEach(img => {
+            
+            // Converti tutte le immagini in base64
+            for (let i = 0; i < images.length; i++) {
+                updateProgress(i + 1, images.length, `Preparazione immagine ${i+1}...`);
+                
+                const base64 = await fileToBase64(images[i].file);
+                imageData.push({
+                    filename: images[i].name,
+                    data: base64.split(',')[1], // Rimuove header
+                    type: images[i].type
+                });
+            }
+            
+            updateProgress(images.length, images.length, 'Invio al bot in corso...');
+            
+            // Invia SUBITO al bot
+            const data = {
+                action: 'analyze_turni_images',
+                images: imageData,
+                cognome: 'Ruggeri',
+                timestamp: new Date().toISOString()
+            };
+            
+            tg.sendData(JSON.stringify(data));
+            
+            // Mostra messaggio di conferma
+            document.getElementById('analysisStatus').innerHTML = 
+                `✅ ${images.length} immagine(i) inviate al bot!\n` +
+                `L'analisi Vision è in corso sul bot...`;
+            
+            // Chiudi dopo 3 secondi
+            setTimeout(() => {
+                tg.close();
+            }, 3000);
+        }
+        
+        // Utility: file to base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    imageData.push({
-                        filename: img.name,
-                        data: e.target.result.split(',')[1]
-                    });
-                    
-                    // Invia quando tutte le immagini sono pronte
-                    if (imageData.length === images.length) {
-                        const data = {
-                            action: 'analyze_turni_images',
-                            images: imageData,
-                            cognome: 'Ruggeri'
-                        };
-                        tg.sendData(JSON.stringify(data));
-                    }
-                };
-                reader.readAsDataURL(img.file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
             });
         }
         
