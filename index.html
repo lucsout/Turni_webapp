@@ -3,130 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📅 Turni Lavoro</title>
+    <title>📸 Carica Turni Ruggeri</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; max-width: 400px; margin: 0 auto; background: #f5f5f7; }
-        .container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
-        h1 { color: #667eea; text-align: center; margin-bottom: 20px; }
-        .section { margin-bottom: 25px; }
-        .section-title { font-weight: bold; margin-bottom: 10px; color: #333; }
-        .days { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
-        .day { padding: 12px; text-align: center; border: 2px solid #e0e0e0; border-radius: 10px; cursor: pointer; transition: all 0.2s; }
-        .day.selected { background: #667eea; color: white; border-color: #5566cc; }
-        .shifts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .shift { padding: 15px; text-align: center; border: 2px solid #e0e0e0; border-radius: 10px; cursor: pointer; transition: all 0.2s; }
-        .shift.selected { background: #48bb78; color: white; border-color: #38a169; }
-        button { padding: 16px; width: 100%; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px; }
-        .submit { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-        .submit:disabled { opacity: 0.5; cursor: not-allowed; }
-        .status { text-align: center; padding: 10px; margin-top: 15px; border-radius: 8px; display: none; }
-        .success { background: #d4edda; color: #155724; display: block !important; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 20px; 
+            max-width: 500px; 
+            margin: 0 auto;
+            background: #f5f5f7;
+        }
+        .container { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 { 
+            color: #667eea; 
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        .instructions {
+            background: #f0f7ff;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+        }
+        .instructions h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .instructions ol {
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 25px;
+            background: #f8faff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover {
+            background: #eef2ff;
+            border-color: #5566cc;
+        }
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+        .upload-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .upload-subtext {
+            color: #666;
+            font-size: 14px;
+        }
+        #fileInput {
+            display: none;
+        }
+        .preview {
+            margin-top: 25px;
+            display: none;
+        }
+        .preview img {
+            max-width: 100%;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+        }
+        .file-info {
+            background: #f0f7ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        button {
+            flex: 1;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .status {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            display: block !important;
+        }
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block !important;
+        }
+        .status-loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            display: block !important;
+        }
+        .note {
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+            margin-top: 20px;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📅 Turni Lavoro</h1>
+        <h1>📸 Carica Turni Ruggeri</h1>
+        <div class="subtitle">Carica foto dei turni per analisi automatica</div>
         
-        <div class="section">
-            <div class="section-title">Seleziona Giorno:</div>
-            <div class="days">
-                <div class="day" data-date="2026-04-20">Lun 20</div>
-                <div class="day" data-date="2026-04-21">Mar 21</div>
-                <div class="day" data-date="2026-04-22">Mer 22</div>
-                <div class="day" data-date="2026-04-23">Gio 23</div>
-                <div class="day" data-date="2026-04-24">Ven 24</div>
-                <div class="day" data-date="2026-04-25">Sab 25</div>
+        <div class="instructions">
+            <h3>📋 Come funziona:</h3>
+            <ol>
+                <li><strong>Scatta una foto</strong> del foglio turni "Ruggeri"</li>
+                <li><strong>Caricala qui</strong> cliccando l'area sotto</li>
+                <li><strong>L'AI analizzerà</strong> automaticamente i turni</li>
+                <li><strong>I dati estratti</strong> verranno salvati nel sistema</li>
+            </ol>
+        </div>
+        
+        <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">Clicca per caricare foto</div>
+            <div class="upload-subtext">Supporta JPG, PNG, HEIC (foto dalla fotocamera)</div>
+            <input type="file" id="fileInput" accept="image/*" capture="environment">
+        </div>
+        
+        <div class="preview" id="preview">
+            <img id="previewImage" src="" alt="Anteprima">
+            <div class="file-info" id="fileInfo">
+                <div><strong>File:</strong> <span id="fileName"></span></div>
+                <div><strong>Dimensione:</strong> <span id="fileSize"></span></div>
+                <div><strong>Tipo:</strong> <span id="fileType"></span></div>
             </div>
         </div>
         
-        <div class="section">
-            <div class="section-title">Seleziona Turno:</div>
-            <div class="shifts">
-                <div class="shift" data-shift="mattina">🌅 Mattina</div>
-                <div class="shift" data-shift="pomeriggio">🌞 Pomeriggio</div>
-                <div class="shift" data-shift="notte">🌙 Notte</div>
-                <div class="shift" data-shift="libero">🏖️ Libero</div>
-                <div class="shift" data-shift="recupero">🔄 Recupero</div>
-                <div class="shift" data-shift="festivo">🎉 Festivo</div>
-            </div>
+        <div class="actions">
+            <button class="btn-secondary" onclick="resetUpload()">🔄 Nuova Foto</button>
+            <button class="btn-primary" id="analyzeBtn" onclick="analyzeImage()" disabled>🔍 Analizza Turni</button>
         </div>
-        
-        <button class="submit" id="submitBtn" disabled>📤 Invia Turni</button>
         
         <div class="status" id="status"></div>
+        
+        <div class="note">
+            L'analisi usa AI Vision per estrarre automaticamente i turni dal foglio Ruggeri.
+            I dati vengono salvati localmente sul tuo dispositivo.
+        </div>
     </div>
 
     <script>
-        // Inizializza Telegram
-        if (typeof Telegram !== 'undefined') {
-            Telegram.WebApp.ready();
-            Telegram.WebApp.expand();
-        }
+        // Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
         
-        let selectedDate = null;
-        let selectedShift = null;
+        let selectedFile = null;
         
-        // Selezione giorni
-        document.querySelectorAll('.day').forEach(day => {
-            day.addEventListener('click', function() {
-                document.querySelectorAll('.day').forEach(d => d.classList.remove('selected'));
-                this.classList.add('selected');
-                selectedDate = this.dataset.date;
-                updateSubmitButton();
-            });
-        });
-        
-        // Selezione turni
-        document.querySelectorAll('.shift').forEach(shift => {
-            shift.addEventListener('click', function() {
-                document.querySelectorAll('.shift').forEach(s => s.classList.remove('selected'));
-                this.classList.add('selected');
-                selectedShift = this.dataset.shift;
-                updateSubmitButton();
-            });
-        });
-        
-        // Aggiorna pulsante
-        function updateSubmitButton() {
-            const btn = document.getElementById('submitBtn');
-            if (selectedDate && selectedShift) {
-                btn.disabled = false;
-                btn.textContent = `📤 Invia ${selectedDate} (${selectedShift})`;
-            }
-        }
-        
-        // Invia dati
-        document.getElementById('submitBtn').addEventListener('click', function() {
-            if (!selectedDate || !selectedShift) return;
+        // Inizializza
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Web App Vision caricata');
             
-            const data = {
-                action: 'salva_turni',
-                turni: [{
-                    data: selectedDate,
-                    turno: selectedShift,
-                    note: 'Inserito via Web App'
-                }]
+            // File input change
+            document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+            
+            // Telegram Main Button
+            tg.MainButton.setText('ANALIZZA TURNI');
+            tg.MainButton.hide();
+        });
+        
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Verifica sia immagine
+            if (!file.type.startsWith('image/')) {
+                showStatus('Seleziona solo immagini!', 'error');
+                return;
+            }
+            
+            selectedFile = file;
+            
+            // Mostra anteprima
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('preview');
+                const previewImage = document.getElementById('previewImage');
+                const fileInfo = document.getElementById('fileInfo');
+                
+                previewImage.src = e.target.result;
+                preview.style.display = 'block';
+                
+                // Info file
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('fileSize').textContent = formatFileSize(file.size);
+                document.getElementById('fileType').textContent = file.type;
+                fileInfo.style.display = 'block';
+                
+                // Abilita analisi
+                document.getElementById('analyzeBtn').disabled = false;
+                tg.MainButton.setText(`ANALIZZA: ${file.name}`);
+                tg.MainButton.show();
+                tg.MainButton.onClick(analyzeImage);
+                
+                showStatus('Foto caricata, pronta per analisi!', 'success');
             };
             
-            showStatus('Invio in corso...', 'success');
-            
-            // Invia a Telegram
-            if (typeof Telegram !== 'undefined') {
-                Telegram.WebApp.sendData(JSON.stringify(data));
-                setTimeout(() => {
-                    Telegram.WebApp.close();
-                }, 1500);
-            } else {
-                showStatus('Dati pronti: ' + JSON.stringify(data), 'success');
-            }
-        });
+            reader.readAsDataURL(file);
+        }
         
-        // Mostra status
+        function analyzeImage() {
+            if (!selectedFile) return;
+            
+            showStatus('Analisi in corso con AI Vision...', 'loading');
+            
+            // Converti file in base64
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Image = e.target.result.split(',')[1]; // Rimuove header data:image/...
+                
+                // Prepara dati per Telegram
+                const data = {
+                    action: 'analyze_turni_image',
+                    image: {
+                        filename: selectedFile.name,
+                        data: base64Image,
+                        type: selectedFile.type,
+                        cognome: 'Ruggeri'
+                    },
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Invia a Telegram Web App
+                tg.sendData(JSON.stringify(data));
+                
+                showStatus('✅ Immagine inviata per analisi!', 'success');
+                
+                // Chiudi dopo 2 secondi
+                setTimeout(() => {
+                    tg.close();
+                }, 2000);
+            };
+            
+            reader.readAsDataURL(selectedFile);
+        }
+        
+        function resetUpload() {
+            selectedFile = null;
+            document.getElementById('fileInput').value = '';
+            document.getElementById('preview').style.display = 'none';
+            document.getElementById('fileInfo').style.display = 'none';
+            document.getElementById('analyzeBtn').disabled = true;
+            tg.MainButton.hide();
+            showStatus('Pronto per nuova foto', 'success');
+        }
+        
         function showStatus(message, type) {
             const status = document.getElementById('status');
             status.textContent = message;
-            status.className = 'status ' + type;
+            status.className = 'status status-' + type;
             
             if (type !== 'loading') {
                 setTimeout(() => {
@@ -135,7 +315,13 @@
             }
         }
         
-        console.log('Web App SINGLE FILE caricata');
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
     </script>
 </body>
 </html>
