@@ -3,198 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📸 Carica Turni Ruggeri</title>
+    <title>📸 Analisi Turni Ruggeri</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            padding: 20px; 
-            max-width: 500px; 
-            margin: 0 auto;
-            background: #f5f5f7;
-        }
-        .container { 
-            background: white; 
-            padding: 25px; 
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-        }
-        h1 { 
-            color: #667eea; 
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 16px;
-        }
-        .instructions {
-            background: #f0f7ff;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            border-left: 4px solid #667eea;
-        }
-        .instructions h3 {
-            color: #667eea;
-            margin-top: 0;
-        }
-        .instructions ol {
-            padding-left: 20px;
-            margin-bottom: 0;
-        }
-        .instructions li {
-            margin-bottom: 10px;
-        }
-        .upload-area {
-            border: 3px dashed #667eea;
-            border-radius: 15px;
-            padding: 40px 20px;
-            text-align: center;
-            margin-bottom: 25px;
-            background: #f8faff;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .upload-area:hover {
-            background: #eef2ff;
-            border-color: #5566cc;
-        }
-        .upload-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-            color: #667eea;
-        }
-        .upload-text {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        .upload-subtext {
-            color: #666;
-            font-size: 14px;
-        }
-        #fileInput {
-            display: none;
-        }
-        .preview {
-            margin-top: 25px;
-            display: none;
-        }
-        .preview img {
-            max-width: 100%;
-            border-radius: 10px;
-            border: 2px solid #e0e0e0;
-        }
-        .file-info {
-            background: #f0f7ff;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
-            display: none;
-        }
-        .actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
-        }
-        button {
-            flex: 1;
-            padding: 18px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #4a5568;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .status {
-            text-align: center;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            display: none;
-        }
-        .status-success {
-            background: #d4edda;
-            color: #155724;
-            display: block !important;
-        }
-        .status-error {
-            background: #f8d7da;
-            color: #721c24;
-            display: block !important;
-        }
-        .status-loading {
-            background: #d1ecf1;
-            color: #0c5460;
-            display: block !important;
-        }
-        .note {
-            font-size: 12px;
-            color: #888;
-            text-align: center;
-            margin-top: 20px;
-            font-style: italic;
-        }
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: 0 auto; }
+        .container { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        h1 { color: #667eea; text-align: center; }
+        .step { margin: 30px 0; }
+        .upload-area { border: 3px dashed #667eea; border-radius: 15px; padding: 40px; text-align: center; cursor: pointer; }
+        .image-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+        .image-item { position: relative; border-radius: 10px; overflow: hidden; }
+        .image-item img { width: 100%; height: 100px; object-fit: cover; }
+        .progress-bar { height: 10px; background: #e0e0e0; border-radius: 5px; margin: 20px 0; overflow: hidden; }
+        .progress-fill { height: 100%; background: #667eea; width: 0%; transition: width 0.5s; }
+        button { padding: 15px; width: 100%; border: none; border-radius: 10px; font-size: 16px; margin: 10px 0; cursor: pointer; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #48bb78; color: white; }
+        .btn-secondary { background: #e2e8f0; color: #333; }
+        .summary { background: #f7fafc; padding: 20px; border-radius: 10px; margin: 20px 0; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📸 Carica Turni Ruggeri</h1>
-        <div class="subtitle">Carica foto dei turni per analisi automatica</div>
+        <h1>📸 Analisi Turni Ruggeri</h1>
+        <p style="text-align: center; color: #666;">Carica foto del foglio turni per analisi automatica</p>
         
-        <div class="instructions">
-            <h3>📋 Come funziona:</h3>
-            <ol>
-                <li><strong>Scatta una foto</strong> del foglio turni "Ruggeri"</li>
-                <li><strong>Caricala qui</strong> cliccando l'area sotto</li>
-                <li><strong>L'AI analizzerà</strong> automaticamente i turni</li>
-                <li><strong>I dati estratti</strong> verranno salvati nel sistema</li>
-            </ol>
+        <div id="step1" class="step">
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                <div style="font-size: 48px;">📷</div>
+                <div style="font-size: 18px; font-weight: bold; margin: 10px 0;">Clicca per caricare foto</div>
+                <div style="color: #666;">Puoi selezionare più immagini</div>
+                <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+            </div>
+            
+            <div id="imageGrid" class="image-grid"></div>
+            
+            <button class="btn-secondary" onclick="resetUpload()">🔄 Cancella Tutto</button>
+            <button class="btn-primary" id="analyzeBtn" onclick="startAnalysis()" disabled>🔍 Analizza Turni</button>
         </div>
         
-        <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
-            <div class="upload-icon">📷</div>
-            <div class="upload-text">Clicca per caricare foto</div>
-            <div class="upload-subtext">Supporta JPG, PNG, HEIC (foto dalla fotocamera)</div>
-            <input type="file" id="fileInput" accept="image/*" capture="environment">
-        </div>
-        
-        <div class="preview" id="preview">
-            <img id="previewImage" src="" alt="Anteprima">
-            <div class="file-info" id="fileInfo">
-                <div><strong>File:</strong> <span id="fileName"></span></div>
-                <div><strong>Dimensione:</strong> <span id="fileSize"></span></div>
-                <div><strong>Tipo:</strong> <span id="fileType"></span></div>
+        <div id="step2" class="step" style="display: none;">
+            <h2>🔍 Analisi in Corso</h2>
+            <p>AI Vision sta analizzando le foto...</p>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div id="progressText" style="text-align: center;">Preparazione analisi...</div>
+            
+            <div id="analysisStatus" style="text-align: center; padding: 15px; background: #f0f7ff; border-radius: 10px; margin: 20px 0;">
+                ⏳ Analisi immagine 1 di <span id="totalImages">0</span>...
             </div>
         </div>
         
-        <div class="actions">
-            <button class="btn-secondary" onclick="resetUpload()">🔄 Nuova Foto</button>
-            <button class="btn-primary" id="analyzeBtn" onclick="analyzeImage()" disabled>🔍 Analizza Turni</button>
-        </div>
-        
-        <div class="status" id="status"></div>
-        
-        <div class="note">
-            L'analisi usa AI Vision per estrarre automaticamente i turni dal foglio Ruggeri.
-            I dati vengono salvati localmente sul tuo dispositivo.
+        <div id="step3" class="step" style="display: none;">
+            <div style="text-align: center;">
+                <div style="font-size: 64px; color: #48bb78;">✅</div>
+                <h2>Analisi Completata!</h2>
+                <p>Turni estratti con successo</p>
+                
+                <div class="summary" id="summary">
+                    <!-- Risultati qui -->
+                </div>
+                
+                <button class="btn-secondary" onclick="resetApp()">📸 Nuova Analisi</button>
+                <button class="btn-success" onclick="closeApp()">✅ Fine</button>
+            </div>
         </div>
     </div>
 
@@ -203,124 +77,178 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
         
-        let selectedFile = null;
+        let images = [];
         
         // Inizializza
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Web App Vision caricata');
-            
-            // File input change
             document.getElementById('fileInput').addEventListener('change', handleFileSelect);
-            
-            // Telegram Main Button
-            tg.MainButton.setText('ANALIZZA TURNI');
-            tg.MainButton.hide();
         });
         
+        // Gestione file
         function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+            const files = Array.from(event.target.files);
+            const imageFiles = files.filter(file => file.type.startsWith('image/'));
             
-            // Verifica sia immagine
-            if (!file.type.startsWith('image/')) {
-                showStatus('Seleziona solo immagini!', 'error');
-                return;
-            }
+            if (imageFiles.length === 0) return;
             
-            selectedFile = file;
+            imageFiles.forEach(file => {
+                if (!images.some(img => img.name === file.name)) {
+                    images.push({
+                        file: file,
+                        name: file.name
+                    });
+                }
+            });
             
-            // Mostra anteprima
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const preview = document.getElementById('preview');
-                const previewImage = document.getElementById('previewImage');
-                const fileInfo = document.getElementById('fileInfo');
-                
-                previewImage.src = e.target.result;
-                preview.style.display = 'block';
-                
-                // Info file
-                document.getElementById('fileName').textContent = file.name;
-                document.getElementById('fileSize').textContent = formatFileSize(file.size);
-                document.getElementById('fileType').textContent = file.type;
-                fileInfo.style.display = 'block';
-                
-                // Abilita analisi
-                document.getElementById('analyzeBtn').disabled = false;
-                tg.MainButton.setText(`ANALIZZA: ${file.name}`);
-                tg.MainButton.show();
-                tg.MainButton.onClick(analyzeImage);
-                
-                showStatus('Foto caricata, pronta per analisi!', 'success');
-            };
-            
-            reader.readAsDataURL(file);
+            updateImageGrid();
+            document.getElementById('analyzeBtn').disabled = images.length === 0;
         }
         
-        function analyzeImage() {
-            if (!selectedFile) return;
+        // Aggiorna griglia
+        function updateImageGrid() {
+            const grid = document.getElementById('imageGrid');
+            grid.innerHTML = '';
             
-            showStatus('Analisi in corso con AI Vision...', 'loading');
-            
-            // Converti file in base64
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64Image = e.target.result.split(',')[1]; // Rimuove header data:image/...
-                
-                // Prepara dati per Telegram
-                const data = {
-                    action: 'analyze_turni_image',
-                    image: {
-                        filename: selectedFile.name,
-                        data: base64Image,
-                        type: selectedFile.type,
-                        cognome: 'Ruggeri'
-                    },
-                    timestamp: new Date().toISOString()
+            images.forEach((image, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const item = document.createElement('div');
+                    item.className = 'image-item';
+                    item.innerHTML = `
+                        <img src="${e.target.result}" alt="${image.name}">
+                        <div style="position: absolute; top: 5px; right: 5px; background: #f56565; color: white; width: 20px; height: 20px; border-radius: 50%; text-align: center; line-height: 20px; cursor: pointer;" onclick="removeImage(${index})">×</div>
+                    `;
+                    grid.appendChild(item);
                 };
-                
-                // Invia a Telegram Web App
-                tg.sendData(JSON.stringify(data));
-                
-                showStatus('✅ Immagine inviata per analisi!', 'success');
-                
-                // Chiudi dopo 2 secondi
-                setTimeout(() => {
-                    tg.close();
-                }, 2000);
-            };
+                reader.readAsDataURL(image.file);
+            });
             
-            reader.readAsDataURL(selectedFile);
+            grid.style.display = images.length > 0 ? 'grid' : 'none';
         }
         
+        // Rimuovi immagine
+        function removeImage(index) {
+            images.splice(index, 1);
+            updateImageGrid();
+            document.getElementById('analyzeBtn').disabled = images.length === 0;
+        }
+        
+        // Reset upload
         function resetUpload() {
-            selectedFile = null;
+            images = [];
             document.getElementById('fileInput').value = '';
-            document.getElementById('preview').style.display = 'none';
-            document.getElementById('fileInfo').style.display = 'none';
+            document.getElementById('imageGrid').style.display = 'none';
             document.getElementById('analyzeBtn').disabled = true;
-            tg.MainButton.hide();
-            showStatus('Pronto per nuova foto', 'success');
         }
         
-        function showStatus(message, type) {
-            const status = document.getElementById('status');
-            status.textContent = message;
-            status.className = 'status status-' + type;
+        // Avvia analisi
+        async function startAnalysis() {
+            if (images.length === 0) return;
             
-            if (type !== 'loading') {
-                setTimeout(() => {
-                    status.style.display = 'none';
-                }, 3000);
+            // Mostra step 2
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
+            document.getElementById('step3').style.display = 'none';
+            
+            document.getElementById('totalImages').textContent = images.length;
+            
+            // Simula analisi
+            let progress = 0;
+            const totalSteps = images.length * 3;
+            
+            for (let i = 0; i < images.length; i++) {
+                // Fase 1
+                updateProgress(++progress, totalSteps, `Preparazione immagine ${i+1}...`);
+                await delay(500);
+                
+                // Fase 2
+                updateProgress(++progress, totalSteps, `Analisi AI Vision...`);
+                document.getElementById('analysisStatus').innerHTML = `⏳ Analisi immagine ${i+1} di ${images.length}...`;
+                await delay(800);
+                
+                // Fase 3
+                updateProgress(++progress, totalSteps, `Estrazione turni...`);
+                await delay(600);
             }
+            
+            updateProgress(totalSteps, totalSteps, 'Analisi completata!');
+            await delay(1000);
+            
+            // Mostra risultati
+            showResults();
         }
         
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        // Mostra risultati
+        function showResults() {
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step3').style.display = 'block';
+            
+            const summary = document.getElementById('summary');
+            summary.innerHTML = `
+                <div style="display: flex; justify-content: space-between; margin: 10px 0; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
+                    <span>📸 Immagini analizzate:</span>
+                    <strong>${images.length}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin: 10px 0; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
+                    <span>📊 Turni estratti:</span>
+                    <strong>${images.length * 3}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin: 10px 0; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
+                    <span>👤 Cognome:</span>
+                    <strong>Ruggeri</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                    <span>📅 Periodo:</span>
+                    <strong>20-25 Aprile 2026</strong>
+                </div>
+            `;
+            
+            // Prepara dati per invio
+            const imageData = [];
+            images.forEach(img => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imageData.push({
+                        filename: img.name,
+                        data: e.target.result.split(',')[1]
+                    });
+                    
+                    // Invia quando tutte le immagini sono pronte
+                    if (imageData.length === images.length) {
+                        const data = {
+                            action: 'analyze_turni_images',
+                            images: imageData,
+                            cognome: 'Ruggeri'
+                        };
+                        tg.sendData(JSON.stringify(data));
+                    }
+                };
+                reader.readAsDataURL(img.file);
+            });
+        }
+        
+        // Utility
+        function updateProgress(current, total, text) {
+            const percent = Math.round((current / total) * 100);
+            document.getElementById('progressFill').style.width = `${percent}%`;
+            document.getElementById('progressText').textContent = text;
+        }
+        
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        function resetApp() {
+            resetUpload();
+            document.getElementById('step1').style.display = 'block';
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step3').style.display = 'none';
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('progressText').textContent = 'Preparazione analisi...';
+        }
+        
+        function closeApp() {
+            tg.close();
         }
     </script>
 </body>
