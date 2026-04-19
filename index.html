@@ -43,16 +43,22 @@
         </div>
         
         <div id="step2" class="step" style="display: none;">
-            <h2>🔍 Analisi in Corso</h2>
-            <p>AI Vision sta analizzando le foto...</p>
+            <h2>📤 Invio al Bot</h2>
+            <p>Invio immagini per analisi Vision...</p>
             
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
+            <div style="text-align: center; padding: 30px; background: #f0f7ff; border-radius: 15px; margin: 20px 0;">
+                <div style="font-size: 48px; margin-bottom: 20px;">📤</div>
+                <div id="analysisStatus" style="font-size: 16px; font-weight: bold;">
+                    Preparazione immagini...
+                </div>
+                <div style="margin-top: 15px; color: #666;">
+                    <span id="totalImages">0</span> immagine(i) in invio
+                </div>
             </div>
-            <div id="progressText" style="text-align: center;">Preparazione analisi...</div>
             
-            <div id="analysisStatus" style="text-align: center; padding: 15px; background: #f0f7ff; border-radius: 10px; margin: 20px 0;">
-                ⏳ Analisi immagine 1 di <span id="totalImages">0</span>...
+            <div style="text-align: center; color: #666; font-size: 14px;">
+                Le immagini vengono inviate al bot per analisi con OpenAI Vision.
+                L'analisi avverrà sul bot, non in questa pagina.
             </div>
         </div>
         
@@ -158,7 +164,8 @@
             
             // Converti tutte le immagini in base64
             for (let i = 0; i < images.length; i++) {
-                updateProgress(i + 1, images.length, `Preparazione immagine ${i+1}...`);
+                document.getElementById('analysisStatus').innerHTML = 
+                    `Preparazione immagine ${i+1}/${images.length}...`;
                 
                 const base64 = await fileToBase64(images[i].file);
                 imageData.push({
@@ -168,7 +175,8 @@
                 });
             }
             
-            updateProgress(images.length, images.length, 'Invio al bot in corso...');
+            document.getElementById('analysisStatus').innerHTML = 
+                `✅ Immagini preparate!\nInvio al bot in corso...`;
             
             // Invia SUBITO al bot
             const data = {
@@ -185,10 +193,10 @@
                 `✅ ${images.length} immagine(i) inviate al bot!\n` +
                 `L'analisi Vision è in corso sul bot...`;
             
-            // Chiudi dopo 3 secondi
+            // Chiudi dopo 2 secondi
             setTimeout(() => {
                 tg.close();
-            }, 3000);
+            }, 2000);
         }
         
         // Utility: file to base64
@@ -201,16 +209,7 @@
             });
         }
         
-        // Utility
-        function updateProgress(current, total, text) {
-            const percent = Math.round((current / total) * 100);
-            document.getElementById('progressFill').style.width = `${percent}%`;
-            document.getElementById('progressText').textContent = text;
-        }
-        
-        function delay(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
+
         
         function resetApp() {
             resetUpload();
