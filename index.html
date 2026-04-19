@@ -151,52 +151,91 @@
         async function startAnalysis() {
             if (images.length === 0) return;
             
+            // Disabilita pulsante per evitare doppi click
+            document.getElementById('analyzeBtn').disabled = true;
+            
             // Mostra step 2 (invio in corso)
             document.getElementById('step1').style.display = 'none';
             document.getElementById('step2').style.display = 'block';
             document.getElementById('step3').style.display = 'none';
             
             document.getElementById('totalImages').textContent = images.length;
-            document.getElementById('analysisStatus').innerHTML = `📤 Invio ${images.length} immagine(i) al bot...`;
             
-            // Prepara dati per invio
-            const imageData = [];
-            
-            // Converti tutte le immagini in base64
-            for (let i = 0; i < images.length; i++) {
+            try {
+                // Fase 1: Preparazione
                 document.getElementById('analysisStatus').innerHTML = 
-                    `Preparazione immagine ${i+1}/${images.length}...`;
+                    `<div style="font-size: 20px; margin-bottom: 10px;">📤</div>` +
+                    `<div style="font-weight: bold;">Preparazione ${images.length} immagine(i)...</div>`;
                 
-                const base64 = await fileToBase64(images[i].file);
-                imageData.push({
-                    filename: images[i].name,
-                    data: base64.split(',')[1], // Rimuove header
-                    type: images[i].type
-                });
+                // Prepara dati per invio
+                const imageData = [];
+                
+                // Converti tutte le immagini in base64
+                for (let i = 0; i < images.length; i++) {
+                    document.getElementById('analysisStatus').innerHTML = 
+                        `<div style="font-size: 20px; margin-bottom: 10px;">🔄</div>` +
+                        `<div style="font-weight: bold;">Preparazione immagine ${i+1}/${images.length}...</div>`;
+                    
+                    const base64 = await fileToBase64(images[i].file);
+                    imageData.push({
+                        filename: images[i].name,
+                        data: base64.split(',')[1], // Rimuove header
+                        type: images[i].type
+                    });
+                }
+                
+                // Fase 2: Invio
+                document.getElementById('analysisStatus').innerHTML = 
+                    `<div style="font-size: 20px; margin-bottom: 10px;">🚀</div>` +
+                    `<div style="font-weight: bold;">Invio al bot in corso...</div>` +
+                    `<div style="margin-top: 10px; color: #666;">Attendi conferma...</div>`;
+                
+                // Invia SUBITO al bot
+                const data = {
+                    action: 'analyze_turni_images',
+                    images: imageData,
+                    cognome: 'Ruggeri',
+                    timestamp: new Date().toISOString()
+                };
+                
+                console.log('Invio dati al bot:', { imageCount: imageData.length });
+                tg.sendData(JSON.stringify(data));
+                
+                // Fase 3: Conferma
+                document.getElementById('analysisStatus').innerHTML = 
+                    `<div style="font-size: 20px; margin-bottom: 10px; color: #48bb78;">✅</div>` +
+                    `<div style="font-weight: bold;">${images.length} immagine(i) inviate!</div>` +
+                    `<div style="margin-top: 10px; color: #666;">Il bot sta analizzando con OpenAI Vision...</div>` +
+                    `<div style="margin-top: 20px; font-size: 14px;">Puoi chiudere questa finestra.</div>`;
+                
+                // Mostra pulsante per chiudere
+                const closeBtn = document.createElement('button');
+                closeBtn.className = 'btn-success';
+                closeBtn.style.marginTop = '20px';
+                closeBtn.innerHTML = '✅ Chiudi';
+                closeBtn.onclick = () => tg.close();
+                document.getElementById('step2').appendChild(closeBtn);
+                
+                // NON chiudere automaticamente - lascia all'utente
+                
+            } catch (error) {
+                console.error('Errore:', error);
+                document.getElementById('analysisStatus').innerHTML = 
+                    `<div style="font-size: 20px; margin-bottom: 10px; color: #f56565;">❌</div>` +
+                    `<div style="font-weight: bold;">Errore nell'invio</div>` +
+                    `<div style="margin-top: 10px; color: #666;">${error.message}</div>`;
+                
+                // Pulsante per riprovare
+                const retryBtn = document.createElement('button');
+                retryBtn.className = 'btn-secondary';
+                retryBtn.style.marginTop = '20px';
+                retryBtn.innerHTML = '🔄 Riprova';
+                retryBtn.onclick = () => {
+                    document.getElementById('analyzeBtn').disabled = false;
+                    startAnalysis();
+                };
+                document.getElementById('step2').appendChild(retryBtn);
             }
-            
-            document.getElementById('analysisStatus').innerHTML = 
-                `✅ Immagini preparate!\nInvio al bot in corso...`;
-            
-            // Invia SUBITO al bot
-            const data = {
-                action: 'analyze_turni_images',
-                images: imageData,
-                cognome: 'Ruggeri',
-                timestamp: new Date().toISOString()
-            };
-            
-            tg.sendData(JSON.stringify(data));
-            
-            // Mostra messaggio di conferma
-            document.getElementById('analysisStatus').innerHTML = 
-                `✅ ${images.length} immagine(i) inviate al bot!\n` +
-                `L'analisi Vision è in corso sul bot...`;
-            
-            // Chiudi dopo 2 secondi
-            setTimeout(() => {
-                tg.close();
-            }, 2000);
         }
         
         // Utility: file to base64
